@@ -292,7 +292,7 @@ public class ConfigActivity extends PreferenceActivity implements OnPreferenceCh
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            return;
+//            return;
         }
         Set<BluetoothDevice> pairedDevices = mBtAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
