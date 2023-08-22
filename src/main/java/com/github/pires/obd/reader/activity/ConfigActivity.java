@@ -1,10 +1,12 @@
 package com.github.pires.obd.reader.activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
@@ -18,6 +20,8 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
 
 import com.github.pires.obd.commands.ObdCommand;
 import com.github.pires.obd.enums.ObdProtocols;
@@ -191,9 +195,9 @@ public class ConfigActivity extends PreferenceActivity implements OnPreferenceCh
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-    /*
-     * Read preferences resources available at res/xml/preferences.xml
-     */
+        /*
+         * Read preferences resources available at res/xml/preferences.xml
+         */
         addPreferencesFromResource(R.xml.preferences);
 
         checkGps();
@@ -213,11 +217,11 @@ public class ConfigActivity extends PreferenceActivity implements OnPreferenceCh
             txtPref.setOnPreferenceChangeListener(this);
         }
 
-    /*
-     * Available OBD commands
-     *
-     * TODO This should be read from preferences database
-     */
+        /*
+         * Available OBD commands
+         *
+         * TODO This should be read from preferences database
+         */
         ArrayList<ObdCommand> cmds = ObdConfig.getCommands();
         PreferenceScreen cmdScr = (PreferenceScreen) getPreferenceScreen()
                 .findPreference(COMMANDS_SCREEN_KEY);
@@ -229,20 +233,20 @@ public class ConfigActivity extends PreferenceActivity implements OnPreferenceCh
             cmdScr.addPreference(cpref);
         }
 
-    /*
-     * Available OBD protocols
-     *
-     */
+        /*
+         * Available OBD protocols
+         *
+         */
         for (ObdProtocols protocol : ObdProtocols.values()) {
             protocolStrings.add(protocol.name());
         }
         listProtocols.setEntries(protocolStrings.toArray(new CharSequence[0]));
         listProtocols.setEntryValues(protocolStrings.toArray(new CharSequence[0]));
 
-    /*
-     * Let's use this device Bluetooth adapter to select which paired OBD-II
-     * compliant device we'll use.
-     */
+        /*
+         * Let's use this device Bluetooth adapter to select which paired OBD-II
+         * compliant device we'll use.
+         */
         final BluetoothAdapter mBtAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBtAdapter == null) {
             listBtDevices
@@ -256,11 +260,11 @@ public class ConfigActivity extends PreferenceActivity implements OnPreferenceCh
             return;
         }
 
-    /*
-     * Listen for preferences click.
-     *
-     * TODO there are so many repeated validations :-/
-     */
+        /*
+         * Listen for preferences click.
+         *
+         * TODO there are so many repeated validations :-/
+         */
         final Activity thisActivity = this;
         listBtDevices.setEntries(new CharSequence[1]);
         listBtDevices.setEntryValues(new CharSequence[1]);
@@ -277,9 +281,19 @@ public class ConfigActivity extends PreferenceActivity implements OnPreferenceCh
             }
         });
 
-    /*
-     * Get paired devices and populate preference list.
-     */
+        /*
+         * Get paired devices and populate preference list.
+         */
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+//            return;
+        }
         Set<BluetoothDevice> pairedDevices = mBtAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
